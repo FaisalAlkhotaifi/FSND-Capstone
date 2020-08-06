@@ -1,9 +1,13 @@
+import os
+from datetime import datetime
 from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, create_engine
 from flask_sqlalchemy import SQLAlchemy
 import json
-import os
 
-database_path = os.environ['DATABASE_URL']
+#database_path = os.environ['DATABASE_URL']
+
+database_name = "casting_agency"
+database_path = "postgres://{}/{}".format('localhost:5432', database_name)
 
 db = SQLAlchemy()
 
@@ -12,21 +16,12 @@ def setup_db(app, database_path=database_path):
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.app = app
     db.init_app(app)
+
+def db_drop_and_create_all():
+    db.drop_all()
     db.create_all()
 
-class DatabaseCRUD(db.Model):
-    def insert(self):
-        db.session.add(self)
-        db.session.commit()
-
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
-
-    def update(self):
-        db.session.commit()
-
-class Movie(DatabaseCRUD):
+class Movie(db.Model):
     __tablename__ = 'Movie'
 
     id = Column(Integer, primary_key=True)
@@ -45,11 +40,21 @@ class Movie(DatabaseCRUD):
         return {
             'id': self.id,
             'name': self.name,
-            'description': self.description,
-            'movie_category_id': self.movie_category_id
+            'description': self.description
         }
+    
+    def insert(self):
+        db.session.add(self)
+        db.session.commit()
 
-class Actor(DatabaseCRUD):
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def update(self):
+        db.session.commit()
+
+class Actor(db.Model):
     __tablename__ = 'Actor'
 
     id = Column(Integer, primary_key=True)
@@ -68,8 +73,19 @@ class Actor(DatabaseCRUD):
             'name': self.name,
             'age': self.age
         }
+    
+    def insert(self):
+        db.session.add(self)
+        db.session.commit()
 
-class MovieCategory(DatabaseCRUD):
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def update(self):
+        db.session.commit()
+
+class MovieCategory(db.Model):
     __tablename__ = 'Movie_Category'
 
     id = Column(Integer, primary_key=True)
@@ -85,13 +101,24 @@ class MovieCategory(DatabaseCRUD):
             'id': self.id,
             'name': self.name
         }
+    
+    def insert(self):
+        db.session.add(self)
+        db.session.commit()
 
-class MovieActorAssign(DatabaseCRUD):
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def update(self):
+        db.session.commit()
+
+class MovieActorAssign(db.Model):
     __tablename__ = 'Movie_Actor_Assign'
 
     id = Column(Integer, primary_key=True)
-    movie_id = db.Column(Integer, ForeignKey('Movie.id', ondelete="CASCADE"))
-    actor_id = db.Column(Integer, ForeignKey('Actor.id', ondelete='CASCADE'))
+    movie_id = Column(Integer, ForeignKey('Movie.id', ondelete="CASCADE"))
+    actor_id = Column(Integer, ForeignKey('Actor.id', ondelete='CASCADE'))
     date_created = Column(DateTime, nullable=False, default=datetime.utcnow)
     date_updated = Column(DateTime, nullable=False, default=datetime.utcnow)
 
@@ -105,3 +132,14 @@ class MovieActorAssign(DatabaseCRUD):
             'movie_id': self.movie_id,
             'actor_id': self.actor_id
         }
+
+    def insert(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def update(self):
+        db.session.commit()
